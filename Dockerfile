@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:latest
 
 # 设置上海时区（Ubuntu方式）
 RUN apt-get update && \
@@ -24,10 +24,10 @@ COPY . /app
 WORKDIR /app
 
 # 配置pip镜像源并安装依赖
-RUN pip config set global.index-url http://mirrors.cloud.tencent.com/pypi/simple && \
-    pip config set global.trusted-host mirrors.cloud.tencent.com && \
-    pip install --upgrade pip && \
-    pip install -r requirements.txt
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip config set global.trusted-host pypi.tuna.tsinghua.edu.cn && \
+    # pip install --upgrade pip --break-system-packages && \
+    pip install --user -r requirements.txt --break-system-packages
 
 # 启动命令
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8080"]
