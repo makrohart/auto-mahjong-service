@@ -19,9 +19,17 @@ def predict(image_path: str) -> dict:
         run_dir = Path("run")
         run_dir.mkdir(exist_ok=True)
         
+        # 获取exe文件的完整路径
+        exe_path = os.path.join(os.getcwd(), "mahjong_predictor.exe")
+        if not os.path.exists(exe_path):
+            # 尝试相对路径
+            exe_path = "mahjong_predictor.exe"
+            if not os.path.exists(exe_path):
+                raise Exception(f"找不到mahjong_predictor.exe文件，当前目录: {os.getcwd()}")
+        
         # 构建命令
         cmd = [
-            "mahjong_predictor.exe",
+            exe_path,
             image_path,
             "--model", "best.pt",
             "--conf", "0.1",
