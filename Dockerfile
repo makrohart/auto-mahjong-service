@@ -8,7 +8,13 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # 设置工作目录
 WORKDIR /app
 
-# 基础镜像已包含必要的系统库
+# 安装OpenCV所需的最小系统依赖
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # 升级pip并配置国内镜像源
 RUN pip install --upgrade pip && \
