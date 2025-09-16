@@ -1,0 +1,52 @@
+# Git相关
+.git
+.gitignore
+
+# Python相关
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE相关
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.temp
+
+# 测试文件
+test_*.py
+*_test.py
+
+# 文档文件
+*.md
+README*
+
+# 部署相关（不需要的）
+deploy*.bat
+*.exe
+
+# 开发环境文件
+.env
+.env.local
+
+# 大文件
+*.pt.bak
+*.pth

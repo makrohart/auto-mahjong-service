@@ -8,13 +8,26 @@ import os
 
 def test_predict_service():
     """测试预测服务"""
+    # 本地测试URL
     base_url = "http://localhost:8080"
     
-    # 测试图片路径（你需要提供一个测试图片）
-    test_image_path = "D:/Projects/autoMahjong/mahjong-dataset/dataset/augumented/images/val/augmented_1.jpg"  # 请替换为实际的测试图片路径
+    # 测试图片路径 - 使用项目中的示例图片
+    test_image_paths = [
+        "run/predict/predict/image0.jpg",  # 使用已有的测试图片
+        "uploads/test.jpg",  # 备用路径
+        "test_image.jpg"  # 当前目录
+    ]
     
-    if not os.path.exists(test_image_path):
-        print(f"测试图片 {test_image_path} 不存在，请提供测试图片")
+    test_image_path = None
+    for path in test_image_paths:
+        if os.path.exists(path):
+            test_image_path = path
+            break
+    
+    if not test_image_path:
+        print("未找到测试图片，请将测试图片放在以下位置之一：")
+        for path in test_image_paths:
+            print(f"  - {path}")
         return
     
     print("开始测试预测服务...")

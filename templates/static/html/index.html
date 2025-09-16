@@ -1,31 +1,273 @@
-FROM alpine
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>麻将AI识别服务</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            transition: border-color 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+        }
+        .upload-area.dragover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        input[type="file"] {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            color: #007bff;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .detection-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .detection-item h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .detection-item p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .confidence {
+            font-weight: bold;
+            color: #28a745;
+        }
+        .bbox {
+            font-family: monospace;
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🀄 麻将AI识别服务</h1>
+        
+        <div class="upload-area" id="uploadArea">
+            <p>📁 拖拽图片到此处或点击选择文件</p>
+            <p>支持格式：PNG, JPG, JPEG, GIF</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            <button onclick="document.getElementById('fileInput').click()">选择文件</button>
+        </div>
+        
+        <div style="text-align: center;">
+            <button id="uploadBtn" onclick="uploadFile()" disabled>开始识别</button>
+            <button onclick="clearResults()">清空结果</button>
+        </div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            <p>🔄 正在识别中，请稍候...</p>
+        </div>
+        
+        <div id="result" class="result">
+            <h3>识别结果</h3>
+            <div id="resultContent"></div>
+        </div>
+    </div>
 
-# 容器默认时区为UTC，如需使用上海时间请启用以下时区设置命令
-RUN apk add tzdata && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const resultContent = document.getElementById('resultContent');
+        
+        let selectedFile = null;
 
-# 选用国内镜像源以提高下载速度
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories \
-&& apk add --update --no-cache python3 py3-pip gcc python3-dev linux-headers musl-dev \
-&& rm -rf /var/cache/apk/*
+        // 文件选择处理
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                uploadBtn.disabled = false;
+                uploadArea.innerHTML = `<p>✅ 已选择文件: ${file.name}</p><p>大小: ${(file.size / 1024).toFixed(1)} KB</p>`;
+            }
+        });
 
-# 使用 HTTPS 协议访问容器云调用证书安装
-RUN apk add ca-certificates
+        // 拖拽处理
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
 
-# 拷贝当前项目到/app目录下(.dockerignore中文件除外)
-COPY . /app
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
 
-# 设定当前的工作目录
-WORKDIR /app
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    selectedFile = file;
+                    uploadBtn.disabled = false;
+                    uploadArea.innerHTML = `<p>✅ 已选择文件: ${file.name}</p><p>大小: ${(file.size / 1024).toFixed(1)} KB</p>`;
+                } else {
+                    showError('请选择图片文件');
+                }
+            }
+        });
 
-# 安装依赖到指定的/install文件夹
-# 选用国内镜像源以提高下载速度
-RUN pip config set global.index-url http://mirrors.cloud.tencent.com/pypi/simple \
-&& pip config set global.trusted-host mirrors.cloud.tencent.com \
-&& pip install --upgrade pip --break-system-packages \
-# pip install scipy 等数学包失败，可使用 apk add py3-scipy 进行， 参考安装 https://pkgs.alpinelinux.org/packages?name=py3-scipy&branch=v3.13
-&& pip install --user -r requirements.txt --break-system-packages
+        // 上传文件
+        async function uploadFile() {
+            if (!selectedFile) {
+                showError('请先选择文件');
+                return;
+            }
 
-# 执行启动命令
-# 写多行独立的CMD命令是错误写法！只有最后一行CMD命令会被执行，之前的都会被忽略，导致业务报错。
-# 请参考[Docker官方文档之CMD命令](https://docs.docker.com/engine/reference/builder/#cmd)
-CMD ["python3", "manage.py", "runserver","0.0.0.0:8080"]
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            // 显示加载状态
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            uploadBtn.disabled = true;
+
+            try {
+                const response = await fetch('/predict_image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess(data);
+                } else {
+                    showError(data.error || '识别失败');
+                }
+            } catch (error) {
+                showError('网络错误: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                uploadBtn.disabled = false;
+            }
+        }
+
+        // 显示成功结果
+        function showSuccess(data) {
+            result.style.display = 'block';
+            
+            let html = '<div class="success">✅ 识别成功！</div>';
+            
+            if (data.json_result && data.json_result.length > 0) {
+                const resultData = data.json_result[0];
+                html += `<p><strong>检测到 ${resultData.total_detections} 张麻将牌：</strong></p>`;
+                
+                resultData.detections.forEach(detection => {
+                    html += `
+                        <div class="detection-item">
+                            <h4>${detection.class_name}</h4>
+                            <p><span class="confidence">置信度: ${(detection.confidence * 100).toFixed(1)}%</span></p>
+                            <p>位置: <span class="bbox">(${detection.bbox.x1.toFixed(1)}, ${detection.bbox.y1.toFixed(1)}) - (${detection.bbox.x2.toFixed(1)}, ${detection.bbox.y2.toFixed(1)})</span></p>
+                            <p>尺寸: <span class="bbox">${detection.bbox.width.toFixed(1)} × ${detection.bbox.height.toFixed(1)}</span></p>
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<p>未检测到任何麻将牌</p>';
+            }
+            
+            if (data.output_image_url) {
+                html += `<p><a href="${data.output_image_url}" target="_blank">查看结果图片</a></p>`;
+            }
+            
+            resultContent.innerHTML = html;
+        }
+
+        // 显示错误
+        function showError(message) {
+            result.style.display = 'block';
+            resultContent.innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        // 清空结果
+        function clearResults() {
+            result.style.display = 'none';
+            resultContent.innerHTML = '';
+            selectedFile = null;
+            fileInput.value = '';
+            uploadBtn.disabled = true;
+            uploadArea.innerHTML = '<p>📁 拖拽图片到此处或点击选择文件</p><p>支持格式：PNG, JPG, JPEG, GIF</p>';
+        }
+    </script>
+</body>
+</html>
