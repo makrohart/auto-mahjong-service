@@ -4,29 +4,11 @@ FROM python:3.9-slim
 # 设置环境变量
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV TZ=Asia/Shanghai
-ENV DEBIAN_FRONTEND=noninteractive
 
 # 设置工作目录
 WORKDIR /app
 
-# 安装系统依赖（最小化，适合headless环境）
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    tzdata \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    libglib2.0-0 \
-    libgl1-mesa-glx \
-    libgthread-2.0-0 \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# 设置时区
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+# 基础镜像已包含必要的系统库
 
 # 升级pip并配置国内镜像源
 RUN pip install --upgrade pip && \
