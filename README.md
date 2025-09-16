@@ -26,6 +26,8 @@ auto-mahjong-service/
 
 ## 安装和运行
 
+### 本地开发
+
 1. 安装Python依赖：
 ```bash
 pip install -r requirements.txt
@@ -37,6 +39,18 @@ python manage.py
 ```
 
 服务将在 `http://localhost:8080` 启动。
+
+### Docker部署
+
+1. 构建镜像：
+```bash
+docker build -t mahjong-service:latest .
+```
+
+2. 运行容器：
+```bash
+docker run -d -p 8080:8080 --name mahjong-service mahjong-service:latest
+```
 
 ## API接口
 
