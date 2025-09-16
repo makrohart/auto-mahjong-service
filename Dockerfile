@@ -1,5 +1,5 @@
-# 使用Python官方轻量镜像作为基础镜像
-FROM python:3.9-slim
+# 使用Python官方镜像（非slim版本，包含更多系统库）
+FROM python:3.9
 
 # 设置环境变量
 ENV PYTHONUNBUFFERED=1
@@ -7,14 +7,6 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # 设置工作目录
 WORKDIR /app
-
-# 安装OpenCV所需的最小系统依赖
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
 
 # 升级pip并配置国内镜像源
 RUN pip install --upgrade pip && \
