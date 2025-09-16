@@ -8,6 +8,11 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # 设置工作目录
 WORKDIR /app
 
+# 安装OpenCV所需的系统依赖
+RUN apt-get update && \
+    apt-get install -y libgl1-mesa-glx && \
+    rm -rf /var/lib/apt/lists/*
+
 # 升级pip并配置国内镜像源
 RUN pip install --upgrade pip && \
     pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
