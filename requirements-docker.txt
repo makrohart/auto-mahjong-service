@@ -13,7 +13,4 @@ opencv-python>=4.8.0
 numpy>=1.24.0
 Pillow>=9.0.0
 
-# CPU版本的PyTorch - 大幅减少包大小
-# 注意：在Docker中通过index-url安装CPU版本
-torch>=2.0.0
-torchvision>=0.15.0
+# PyTorch CPU版本将通过index-url安装

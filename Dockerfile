@@ -31,10 +31,13 @@ RUN pip install --upgrade pip && \
     pip config set global.trusted-host pypi.tuna.tsinghua.edu.cn
 
 # 先复制requirements文件并安装依赖（利用Docker缓存）
-COPY requirements.txt /app/requirements.txt
+COPY requirements-docker.txt /app/requirements.txt
 
-# 安装Python依赖
+# 安装基础Python依赖
 RUN pip install --no-cache-dir -r requirements.txt
+
+# 安装CPU版本的PyTorch以减小镜像大小
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
 # 复制项目文件
 COPY . /app/
