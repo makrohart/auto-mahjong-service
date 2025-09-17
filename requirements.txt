@@ -1,11 +1,17 @@
-asgiref==3.8.1
-blinker==1.9.0
-click==8.1.8
-Django==5.2
+# Web框架
 Flask==3.0.3
-itsdangerous==2.2.0
+Werkzeug==3.0.6
 Jinja2==3.1.6
 MarkupSafe==3.0.2
-sqlparse==0.5.3
-Werkzeug==3.0.6
-ultralytics
+itsdangerous==2.2.0
+click==8.1.8
+blinker==1.9.0
+
+# 机器学习相关
+ultralytics==8.0.196
+opencv-python==4.8.1.78
+torch>=2.0.0
+torchvision>=0.15.0
+
+# 其他工具
+Pillow>=9.0.0

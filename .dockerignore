@@ -1,6 +1,7 @@
 # Git相关
 .git
 .gitignore
+.gitattributes
 
 # Python相关
 __pycache__/
@@ -8,8 +9,25 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 虚拟环境
 venv/
+env/
 ENV/
 env.bak/
 venv.bak/
@@ -19,34 +37,37 @@ venv.bak/
 .idea/
 *.swp
 *.swo
+*~
 
-# 系统文件
+# 操作系统相关
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # 日志文件
 *.log
+logs/
 
 # 临时文件
-*.tmp
-*.temp
+tmp/
+temp/
+.tmp/
 
-# 测试文件
+# 测试相关
 test_*.py
 *_test.py
+tests/
+.pytest_cache/
 
-# 文档文件
+# 文档
 *.md
-README*
+docs/
 
-# 部署相关（不需要的）
-deploy*.bat
-*.exe
-
-# 开发环境文件
-.env
-.env.local
-
-# 大文件
-*.pt.bak
-*.pth
+# 其他不需要的文件
+*.bak
+*.backup
+*.orig
