@@ -1,19 +1,11 @@
-# Flask后端服务依赖
-Flask>=2.0.0
-Werkzeug>=2.0.0
-Jinja2>=3.0.0
-MarkupSafe>=2.0.0
-itsdangerous>=2.0.0
-click>=8.0.0
-blinker>=1.4.0
-
-# 轻量化麻将识别依赖
-ultralytics>=8.0.0
-opencv-python>=4.8.0
-numpy>=1.24.0
-Pillow>=9.0.0
-
-# CPU版本的PyTorch - 大幅减少包大小
-# 注意：在Docker中通过index-url安装CPU版本
-torch>=2.0.0
-torchvision>=0.15.0
+asgiref==3.8.1
+blinker==1.9.0
+click==8.1.8
+Django==5.2
+Flask==3.0.3
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.2
+sqlparse==0.5.3
+Werkzeug==3.0.6
+ultralytics
