@@ -91,7 +91,7 @@ def create_app():
                     'success': True,
                     'json_result': result['json_result'],
                     'message': result.get('message', 'Prediction completed'),
-                    'output_image_url': f'/get_result_image/{os.path.basename(result["output_image_path"])}' if result['output_image_path'] else None
+                    'output_image_url': None  # 不再生成输出图片
                 }
                 
                 logger.info(f"Prediction successful: {result.get('message', '')}")

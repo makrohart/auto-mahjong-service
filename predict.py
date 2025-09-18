@@ -27,12 +27,12 @@ def predict(image_path: str) -> dict:
         if not os.path.exists(model_path):
             raise Exception(f"找不到模型文件: {model_path}")
         
-        # 使用YOLO模型进行预测
+        # 使用YOLO模型进行预测（禁用图片保存以避免字体下载阻塞）
         results = predict_mahjong(
             image_path=image_path,
             model_path=model_path,
             conf_threshold=0.1,
-            save_result=True,
+            save_result=False,  # 禁用图片保存
             output_dir="run/predict"
         )
         
@@ -44,24 +44,10 @@ def predict(image_path: str) -> dict:
                 "message": "未检测到任何麻将牌"
             }
         
-        # 查找输出图片 - 图片在run/predict/predictxx子目录下
-        output_image_path = None
-        predict_dir = run_dir / "predict"
-        
-        if predict_dir.exists():
-            predict_subdirs = [d for d in predict_dir.iterdir() if d.is_dir() and d.name.startswith('predict')]
-            
-            if predict_subdirs:
-                # 使用最新的子目录
-                latest_subdir = sorted(predict_subdirs)[-1]
-                image_files = list(latest_subdir.glob("*.jpg")) + list(latest_subdir.glob("*.png"))
-                if image_files:
-                    output_image_path = str(image_files[-1])  # 使用最新的图片文件
-        
         return {
             "success": True,
             "json_result": results,
-            "output_image_path": output_image_path,
+            "output_image_path": None,  # 不再生成输出图片
             "message": f"成功识别出 {sum(r['total_detections'] for r in results)} 张麻将牌"
         }
         

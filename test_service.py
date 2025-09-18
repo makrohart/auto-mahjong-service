@@ -9,13 +9,11 @@ import os
 def test_predict_service():
     """测试预测服务"""
     # 本地测试URL
-    base_url = "http://localhost:8080"
+    base_url = "https://auto-mahjong-service-staging-179677-10-1372684131.sh.run.tcloudbase.com"
     
     # 测试图片路径 - 使用项目中的示例图片
     test_image_paths = [
-        "run/predict/predict/image0.jpg",  # 使用已有的测试图片
-        "uploads/test.jpg",  # 备用路径
-        "test_image.jpg"  # 当前目录
+        "augmented_1.jpg"
     ]
     
     test_image_path = None
@@ -31,6 +29,7 @@ def test_predict_service():
         return
     
     print("开始测试预测服务...")
+    print("注意：AI 识别可能需要较长时间，请耐心等待...")
     
     # 准备请求
     url = f"{base_url}/predict_image"
@@ -38,7 +37,8 @@ def test_predict_service():
     try:
         with open(test_image_path, 'rb') as f:
             files = {'file': f}
-            response = requests.post(url, files=files)
+            # 设置超时时间为60秒（连接超时5秒，读取超时60秒）
+            response = requests.post(url, files=files, timeout=(10, 300))
         
         print(f"响应状态码: {response.status_code}")
         print(f"响应内容: {json.dumps(response.json(), indent=2, ensure_ascii=False)}")
@@ -57,6 +57,10 @@ def test_predict_service():
             
     except requests.exceptions.ConnectionError:
         print("❌ 无法连接到服务，请确保Flask服务正在运行")
+    except requests.exceptions.Timeout:
+        print("❌ 请求超时！AI 识别可能需要更长时间，请检查服务状态或增加超时时间")
+    except requests.exceptions.ReadTimeout:
+        print("❌ 读取响应超时！服务可能正在处理中，请稍后重试")
     except Exception as e:
         print(f"❌ 测试过程中出现错误: {str(e)}")
 
